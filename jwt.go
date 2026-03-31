@@ -13,8 +13,8 @@ var (
 )
 
 type UserClaims struct {
-	UserID   int    `json:"id"`
-	Username string `json:"username"`
+	UserID         int `json:"user_id"`
+	OrganizationID int `json:"organization_id"`
 	jwt.RegisteredClaims
 }
 
@@ -43,15 +43,5 @@ func ParseTokenWithHS256(tokenStr string) *UserClaims {
 func ParseContextWithHS256(h interface{ Header(string) string }) *UserClaims {
 	tokenStr := h.Header("Authorization")
 	tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
-	if globalSecret == nil {
-		return nil
-	}
-	claims := &UserClaims{}
-	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return globalSecret, nil
-	})
-	if err != nil || !token.Valid {
-		return nil
-	}
-	return claims
+	return ParseTokenWithHS256(tokenStr)
 }
